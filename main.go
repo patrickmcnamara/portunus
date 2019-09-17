@@ -19,17 +19,17 @@ var (
 	vaultFile    = configDir + "/portunus.json"
 
 	// vault errors
-	errorVaultExists      = errors.New("vault file already exists at " + vaultFile)
-	errorVaultNotExists   = errors.New("no vault file found at " + vaultFile)
-	errorVaultInvalid     = errors.New("invalid vault file at " + vaultFile)
-	errorVaultNoSuchValue = errors.New("no such value in vault")
+	errVaultExists      = errors.New("vault file already exists at " + vaultFile)
+	errVaultNotExists   = errors.New("no vault file found at " + vaultFile)
+	errVaultInvalid     = errors.New("invalid vault file at " + vaultFile)
+	errVaultNoSuchValue = errors.New("no such value in vault")
 
 	// argument parsing errors
-	errorBadArgs    = errors.New("possible subcommands 'vlt', 'get', 'set', 'new', 'lst', 'gen'")
-	errorBadArgsSet = errors.New("'set' takes one argument, 'name'")
-	errorBadArgsNew = errors.New("'new' takes one argument, 'name'")
-	errorBadArgsGet = errors.New("'get' takes one argument, 'name'")
-	errorBadArgsGen = errors.New("'gen' takes one argument, 'name'")
+	errBadArgs    = errors.New("possible subcommands 'vlt', 'get', 'set', 'new', 'lst', 'gen'")
+	errBadArgsSet = errors.New("'set' takes one argument, 'name'")
+	errBadArgsNew = errors.New("'new' takes one argument, 'name'")
+	errBadArgsGet = errors.New("'get' takes one argument, 'name'")
+	errBadArgsGen = errors.New("'gen' takes one argument, 'name'")
 )
 
 type vault struct {
@@ -42,7 +42,7 @@ func newVault() (*vault, error) {
 	fd, err := os.OpenFile(vaultFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
 	if err != nil {
 		if errors.Is(err, os.ErrExist) {
-			return nil, errorVaultExists
+			return nil, errVaultExists
 		}
 		return nil, err
 	}
@@ -56,13 +56,13 @@ func openVault() (*vault, error) {
 	data, err := ioutil.ReadFile(vaultFile)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return nil, errorVaultNotExists
+			return nil, errVaultNotExists
 		}
 		return nil, err
 	}
 	err = json.Unmarshal(data, &vlt.vlt)
 	if err != nil {
-		return nil, errorVaultInvalid
+		return nil, errVaultInvalid
 	}
 	return vlt, nil
 }
@@ -84,7 +84,7 @@ func (vlt *vault) get(name string) (string, error) {
 	defer vlt.lock.Unlock()
 	pswd, ok := vlt.vlt[name]
 	if !ok {
-		return "", errorVaultNoSuchValue
+		return "", errVaultNoSuchValue
 	}
 	return pswd, nil
 }
@@ -93,7 +93,7 @@ func (vlt *vault) rem(name string) error {
 	vlt.lock.Lock()
 	defer vlt.lock.Unlock()
 	if _, ok := vlt.vlt[name]; !ok {
-		return errorVaultNoSuchValue
+		return errVaultNoSuchValue
 	}
 	delete(vlt.vlt, name)
 	return nil
@@ -130,7 +130,7 @@ func readPassword() string {
 
 func main() {
 	if len(os.Args) < 2 {
-		exit(errorBadArgs)
+		exit(errBadArgs)
 	}
 
 	vlt, err := openVault()
@@ -144,20 +144,20 @@ func main() {
 		exit(err)
 	case "set":
 		if len(os.Args) != 3 {
-			exit(errorBadArgsSet)
+			exit(errBadArgsSet)
 		}
 		name := os.Args[2]
 		vlt.set(name)
 		exit(vlt.saveVault())
 	case "new":
 		if len(os.Args) != 3 {
-			exit(errorBadArgsNew)
+			exit(errBadArgsNew)
 		}
 		name := os.Args[2]
 		vlt.new(name)
 	case "get":
 		if len(os.Args) != 3 {
-			exit(errorBadArgsGet)
+			exit(errBadArgsGet)
 		}
 		name := os.Args[2]
 		pswd, err := vlt.get(name)
@@ -170,7 +170,7 @@ func main() {
 	case "gen":
 		fmt.Println(generatePassword())
 	default:
-		exit(errorBadArgs)
+		exit(errBadArgs)
 	}
 }
 
