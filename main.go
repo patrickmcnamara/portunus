@@ -130,38 +130,38 @@ func readPassword() string {
 
 func main() {
 	if len(os.Args) < 2 {
-		exit(errBadArgs)
+		chk(errBadArgs)
 	}
 
 	vlt, err := openVault()
 	if err != nil && os.Args[1] != "new" {
-		exit(err)
+		chk(err)
 	}
 
 	switch os.Args[1] {
 	case "vlt":
 		_, err := newVault()
-		exit(err)
+		chk(err)
 	case "set":
 		if len(os.Args) != 3 {
-			exit(errBadArgsSet)
+			chk(errBadArgsSet)
 		}
 		name := os.Args[2]
 		vlt.set(name)
-		exit(vlt.saveVault())
+		chk(vlt.saveVault())
 	case "new":
 		if len(os.Args) != 3 {
-			exit(errBadArgsNew)
+			chk(errBadArgsNew)
 		}
 		name := os.Args[2]
 		vlt.new(name)
 	case "get":
 		if len(os.Args) != 3 {
-			exit(errBadArgsGet)
+			chk(errBadArgsGet)
 		}
 		name := os.Args[2]
 		pswd, err := vlt.get(name)
-		exit(err)
+		chk(err)
 		fmt.Println(pswd)
 	case "lst":
 		for _, name := range vlt.lst() {
@@ -170,11 +170,11 @@ func main() {
 	case "gen":
 		fmt.Println(generatePassword())
 	default:
-		exit(errBadArgs)
+		chk(errBadArgs)
 	}
 }
 
-func exit(err error) {
+func chk(err error) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, fmt.Errorf("portunus: %w", err))
 		os.Exit(1)
