@@ -67,6 +67,12 @@ func openVault() (*vault, error) {
 	return vlt, nil
 }
 
+func (vlt *vault) saveVault() error {
+	data, _ := json.Marshal(vlt.vlt)
+	err := ioutil.WriteFile(vaultFile, data, 0600)
+	return err
+}
+
 func (vlt *vault) set(name string) {
 	vlt.lock.Lock()
 	defer vlt.lock.Unlock()
@@ -108,12 +114,6 @@ func (vlt *vault) lst() []string {
 	}
 	sort.Strings(names)
 	return names
-}
-
-func (vlt *vault) saveVault() error {
-	data, _ := json.Marshal(vlt.vlt)
-	err := ioutil.WriteFile(vaultFile, data, 0644)
-	return err
 }
 
 func generatePassword() string {
