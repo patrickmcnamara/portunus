@@ -155,6 +155,7 @@ func main() {
 		}
 		name := os.Args[2]
 		vlt.new(name)
+		chk(vlt.saveVault())
 	case "get":
 		if len(os.Args) != 3 {
 			chk(errBadArgsGet)
