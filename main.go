@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sort"
 	"sync"
 )
@@ -16,7 +17,7 @@ import (
 var (
 	// vaultFile is the vault file location
 	configDir, _ = os.UserConfigDir()
-	vaultFile    = configDir + "/portunus.json"
+	vaultFile    = filepath.Join(configDir, "portunus.json")
 
 	// vault errors
 	errVaultExists      = errors.New("vault file already exists at " + vaultFile)
