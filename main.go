@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -12,6 +11,8 @@ import (
 	"path/filepath"
 	"sort"
 	"sync"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
@@ -124,9 +125,8 @@ func generatePassword() string {
 }
 
 func readPassword() string {
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	return scanner.Text()
+	buf, _ := terminal.ReadPassword(int(os.Stdin.Fd()))
+	return string(buf)
 }
 
 func main() {
